@@ -102,3 +102,6 @@ ENV/
 tests/cars_dataset/annotations_*
 tests/cars_dataset/images_*
 tests/cars_dataset/bounding_boxes
+
+cars_dataset/
+insects_dataset/
