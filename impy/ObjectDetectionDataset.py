@@ -376,6 +376,9 @@ class ObjectDetectionDataset(object):
 			#print(img)
 			# Get extension
 			extension = Util.detect_file_extension(filename = img)
+			# print(10*"*")
+			# print(f"extension: {extension}, image: {img}")
+			# print(10*"*")
 			if (extension == None):
 				raise Exception("Your image extension is not valid." +\
 												 "Only jpgs and pngs are allowed.")
@@ -452,10 +455,19 @@ class ObjectDetectionDataset(object):
 		# Create a list of classes with the annotations.
 		annotations = []
 		index = 0
+		# print(10*"*")
+		# print(names)
+		# print(10*"*")
 		for boundingBox, name in zip(boundingBoxes, names):
 			# Compute the module
 			ix, iy, x, y = boundingBox
 			module = VectorOperations.compute_module(vector = [ix, iy])
+			if name is None:
+				# print(10*"*")
+				# print("weird",name)
+				# print(annotationPath)
+				# print(10*"*")
+				continue
 			annotations.append(Annotation(name = name, bndbox = boundingBox, \
 																		module = module, corePoint = True))
 			index += 1
@@ -507,6 +519,8 @@ class ObjectDetectionDataset(object):
 				if (len(newBoundingBoxes) == 0):
 					print(boundingBoxes)
 					print(RoiXMin, RoiYMin, RoiXMax, RoiYMax)
+					print("ERROR: No bounding boxes: {}. Please report this problem.".format(imagePath))
+					continue
 					raise Exception("ERROR: No bounding boxes: {}. Please report this problem.".format(imagePath))
 				# Read image.
 				frame = cv2.imread(imagePath)
