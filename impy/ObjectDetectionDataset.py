@@ -329,7 +329,7 @@ class ObjectDetectionDataset(object):
 							((ix < 0) or (iy < 0)) or \
 							((x > frame.shape[1]) or (y > frame.shape[0]))):
 						print(img)
-						print(ix, iy, x, y)
+						# print(ix, iy, x, y)
 						raise Exception("Bounding box does not exist.")
 					# Save image.
 					Util.save_img(frame = frame[iy:y, ix:x, :],
@@ -376,9 +376,7 @@ class ObjectDetectionDataset(object):
 			#print(img)
 			# Get extension
 			extension = Util.detect_file_extension(filename = img)
-			# print(10*"*")
-			# print(f"extension: {extension}, image: {img}")
-			# print(10*"*")
+
 			if (extension == None):
 				raise Exception("Your image extension is not valid." +\
 												 "Only jpgs and pngs are allowed.")
@@ -455,18 +453,12 @@ class ObjectDetectionDataset(object):
 		# Create a list of classes with the annotations.
 		annotations = []
 		index = 0
-		# print(10*"*")
-		# print(names)
-		# print(10*"*")
+
 		for boundingBox, name in zip(boundingBoxes, names):
 			# Compute the module
 			ix, iy, x, y = boundingBox
 			module = VectorOperations.compute_module(vector = [ix, iy])
 			if name is None:
-				# print(10*"*")
-				# print("weird",name)
-				# print(annotationPath)
-				# print(10*"*")
 				continue
 			annotations.append(Annotation(name = name, bndbox = boundingBox, \
 																		module = module, corePoint = True))
@@ -517,8 +509,8 @@ class ObjectDetectionDataset(object):
 																						boundingBoxes = boundingBoxes,
 																						names = names)
 				if (len(newBoundingBoxes) == 0):
-					print(boundingBoxes)
-					print(RoiXMin, RoiYMin, RoiXMax, RoiYMax)
+					# print(boundingBoxes)
+					# print(RoiXMin, RoiYMin, RoiXMax, RoiYMax)
 					print("ERROR: No bounding boxes: {}. Please report this problem.".format(imagePath))
 					continue
 					raise Exception("ERROR: No bounding boxes: {}. Please report this problem.".format(imagePath))
@@ -530,8 +522,9 @@ class ObjectDetectionDataset(object):
 													"Only jpgs and pngs are allowed. {}".format(extension))
 				# Generate a new name.
 				newName = Util.create_random_name(name = self.databaseName, length = 4)
-				imgName = newName + extension
-				xmlName = newName + ".xml"
+				imgNameOG = "_" + imagePath.split('/')[-1][:-4]
+				imgName = newName + imgNameOG + extension
+				xmlName = newName + imgNameOG + ".xml"
 				# Save image.
 				Util.save_img(frame = frame[RoiYMin:RoiYMax, RoiXMin:RoiXMax, :],
 																					img_name = imgName,
