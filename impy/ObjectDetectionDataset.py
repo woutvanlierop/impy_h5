@@ -516,6 +516,9 @@ class ObjectDetectionDataset(object):
 					raise Exception("ERROR: No bounding boxes: {}. Please report this problem.".format(imagePath))
 				# Read image.
 				frame = cv2.imread(imagePath)
+				if frame is None:
+					print(f"Frame is None. Couldn\'t read {imagePath}")
+					continue
 				extension = Util.detect_file_extension(filename = imagePath)
 				if (extension == None):
 					raise Exception("Your image extension is not valid. " +\
