@@ -1,3 +1,13 @@
+<h1> Modifications for .h5 files </h1>
+<p>To read in the created .h5 tiles in your model use the following code:</p>
+
+```bash
+f = h5py.File(self.image_names[image_index], 'r')
+img = np.array(f['image'])
+f.close()
+```
+
+
 <h1> Impy (Images in python) </h1>
 <p>Impy is a library used for deep learning projects that use image datasets.</p>
 <ul>
