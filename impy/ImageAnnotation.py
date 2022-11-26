@@ -65,10 +65,10 @@ class ImageAnnotation(object):
 			# Find bndbox
 			coordinates = objects[i].find("bndbox")
 			# Get coordinates
-			xmin = int(coordinates.find("xmin").text)
-			xmax = int(coordinates.find("xmax").text)
-			ymin = int(coordinates.find("ymin").text)
-			ymax = int(coordinates.find("ymax").text)
+			xmin = int(float(coordinates.find("xmin").text))
+			xmax = int(float(coordinates.find("xmax").text))
+			ymin = int(float(coordinates.find("ymin").text))
+			ymax = int(float(coordinates.find("ymax").text))
 			boundingBoxes.append([xmin, ymin, xmax, ymax])
 		return boundingBoxes
 

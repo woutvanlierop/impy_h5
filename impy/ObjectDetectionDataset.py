@@ -9,6 +9,7 @@ import json
 import math
 import numpy as np
 # from interface import implements
+from pyper.lab.measurement import FxMeasurement
 from tqdm import tqdm
 
 try:
@@ -110,9 +111,9 @@ class ObjectDetectionDataset(object):
 		for image in tqdm(os.listdir(self.imagesDirectory)):
 			# Extract name.
 			extension = Util.detect_file_extension(filename = image)
-			if (extension == None):
-				raise Exception("Your image extension is not valid: {}".format(extension) +\
-												 " Only jpgs and pngs are allowed.")
+			# if (extension == None):
+			# 	raise Exception("Your image extension is not valid: {}".format(extension) +\
+			# 									 " Only jpgs and pngs are allowed.")
 			images.append(image.split(extension)[0])
 		# Preprocess annotations.
 		for annotation in tqdm(os.listdir(self.annotationsDirectory)):
@@ -164,9 +165,9 @@ class ObjectDetectionDataset(object):
 				continue
 			# Otherwise, continue.
 			extension = Util.detect_file_extension(filename = file)
-			if (extension == None):
-				raise Exception("ERROR: Your image extension is not valid: {}".format(extension) +\
-												 " Only jpgs and pngs are allowed.")
+			# if (extension == None):
+			# 	raise Exception("ERROR: Your image extension is not valid: {}".format(extension) +\
+			# 									 " Only jpgs and pngs are allowed.")
 			# Extract name
 			filename = os.path.split(file)[1].split(extension)[0]
 			# Create xml and img name
@@ -231,9 +232,9 @@ class ObjectDetectionDataset(object):
 		# Logic
 		for file in tqdm(files):
 			extension = Util.detect_file_extension(filename = file)
-			if (extension == None):
-				raise Exception("ERROR: Your image extension is not valid: {}".format(extension) +\
-												 " Only jpgs and pngs are allowed.")
+			# if (extension == None):
+			# 	raise Exception("ERROR: Your image extension is not valid: {}".format(extension) +\
+			# 									 " Only jpgs and pngs are allowed.")
 			# Extract name.
 			filename = os.path.split(file)[1].split(extension)[0]
 			# Create xml and img name.
@@ -279,22 +280,22 @@ class ObjectDetectionDataset(object):
 		if (outputDirectory == None):
 			raise ValueError("outputDirectory cannot be empty")
 		if (type(outputDirectory) != str):
-			raise TyperError("outputDirectory must be a string.")
+			raise TypeError("outputDirectory must be a string.")
 		if (not (os.path.isdir(outputDirectory))):
 			raise FileNotFoundError("outputDirectory's path does not exist: ".format(outputDirectory))
 		if (filterClasses == None):
 			filterClasses = []
 		if (type(filterClasses) != list):
-			raise TyperError("filterClasses must be of type list.")
+			raise TypeError("filterClasses must be of type list.")
 		# Local variables
 		images = [os.path.join(self.imagesDirectory, i) for i in os.listdir(self.imagesDirectory)]
 		# Logic
 		for img in tqdm(images):
 			# Get extension
 			extension = Util.detect_file_extension(filename = img)
-			if (extension == None):
-				raise Exception("ERROR: Your image extension is not valid." +\
-												 "Only jpgs and pngs are allowed.")
+			# if (extension == None):
+			# 	raise Exception("ERROR: Your image extension is not valid." +\
+			# 									 "Only jpgs and pngs are allowed.")
 			# Extract name
 			filename = os.path.split(img)[1].split(extension)[0]
 			# Create xml and img name
@@ -313,9 +314,9 @@ class ObjectDetectionDataset(object):
 					ix, iy, x, y = boundingBox
 					# Detect extension.
 					extension = Util.detect_file_extension(filename = img)
-					if (extension == None):
-						raise Exception("Your image extension is not valid. " +\
-														"Only jpgs and pngs are allowed. {}".format(extension))
+					# if (extension == None):
+					# 	raise Exception("Your image extension is not valid. " +\
+					# 									"Only jpgs and pngs are allowed. {}".format(extension))
 					# Generate a new name.
 					newName = Util.create_random_name(name = self.databaseName, length = 4)
 					imgName = newName + extension
@@ -377,14 +378,18 @@ class ObjectDetectionDataset(object):
 			# Get extension
 			extension = Util.detect_file_extension(filename = img)
 
-			if (extension == None):
-				raise Exception("Your image extension is not valid." +\
-												 "Only jpgs and pngs are allowed.")
+
+			# if (extension == None):
+			# 	raise Exception("Your image extension is not valid." +\
+			# 									 "Only jpgs and pngs are allowed.")
 			# Extract name
 			filename = os.path.split(img)[1].split(extension)[0]
+			filename = os.path.basename(img)
 			# Create xml and img name
-			imgFullPath = os.path.join(self.imagesDirectory, filename + extension)
-			xmlFullPath = os.path.join(self.annotationsDirectory, filename + ".xml")
+			imgFullPath = os.path.join(self.imagesDirectory, filename)
+			imgFullPath = imgFullPath.replace('\\', '/')
+			xmlFullPath = os.path.join(self.annotationsDirectory, filename[:-3] + "_HSI.xml")
+			xmlFullPath = xmlFullPath.replace('\\', '/')
 			self.reduceImageDataPointByRoi(imagePath = imgFullPath, 
 																			annotationPath = xmlFullPath,
 																			offset = offset,
@@ -516,18 +521,19 @@ class ObjectDetectionDataset(object):
 					raise Exception("ERROR: No bounding boxes: {}. Please report this problem.".format(imagePath))
 				# Read image.
 				frame = cv2.imread(imagePath)
+				frame, wl, label = FxMeasurement._read_from_hdf5(imagePath)
 				if frame is None:
 					print(f"Frame is None. Couldn\'t read {imagePath}")
 					continue
 				extension = Util.detect_file_extension(filename = imagePath)
-				if (extension == None):
-					raise Exception("Your image extension is not valid. " +\
-													"Only jpgs and pngs are allowed. {}".format(extension))
+				# if (extension == None):
+				# 	raise Exception("Your image extension is not valid. " +\
+				# 									"Only jpgs and pngs are allowed. {}".format(extension))
 				# Generate a new name.
 				newName = Util.create_random_name(name = self.databaseName, length = 4)
 				imgNameOG = "_" + imagePath.split('/')[-1][:-4]
-				imgName = newName + imgNameOG + extension
-				xmlName = newName + imgNameOG + ".xml"
+				imgName = newName + str(imgNameOG) + ".h5"
+				xmlName = newName + str(imgNameOG) + ".xml"
 				# Save image.
 				Util.save_img(frame = frame[RoiYMin:RoiYMax, RoiXMin:RoiXMax, :],
 																					img_name = imgName,
@@ -584,7 +590,7 @@ class ObjectDetectionDataset(object):
 		if (threshold == None):
 			threshold = 0.5
 		if (type(threshold) != float):
-			raise TyperError("ERROR: threshold parameter must be of type float.")
+			raise TypeError("ERROR: threshold parameter must be of type float.")
 		if ((threshold > 1) or (threshold < 0)):
 			raise ValueError("ERROR: threshold paramater should be a number between" +\
 												" 0-1.")
@@ -596,9 +602,9 @@ class ObjectDetectionDataset(object):
 		for img in tqdm(os.listdir(self.imagesDirectory)):
 			# Get the extension
 			extension = Util.detect_file_extension(filename = img)
-			if (extension == None):
-				raise Exception("ERROR: Your image extension is not valid." +\
-												 "Only jpgs and pngs are allowed.")
+			# if (extension == None):
+			# 	raise Exception("ERROR: Your image extension is not valid." +\
+			# 									 "Only jpgs and pngs are allowed.")
 			# Extract name.
 			filename = os.path.split(img)[1].split(extension)[0]
 			# Create xml and img name.

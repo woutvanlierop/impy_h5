@@ -7,6 +7,8 @@ import os
 import datetime
 import re
 import json
+
+import h5py
 import numpy as np
 import cv2
 import xml.etree.ElementTree as ET
@@ -116,13 +118,16 @@ class Util(object):
     if (img_name == None):
       raise ValueError("img_name cannot be emtpy.")
     extension = Util.detect_file_extension(filename = img_name)
-    if (extension == None):
-      raise Exception("Your image extension is not valid. " +\
-                      "Only jpgs and pngs are allowed. {}".format(extension))
+    # if (extension == None):
+    #   raise Exception("Your image extension is not valid. " +\
+    #                   "Only jpgs and pngs are allowed. {}".format(extension))
     # Local variables.
     img_save_path = os.path.join(output_image_directory, img_name)
     # Logic.
-    cv2.imwrite(img_save_path, frame)
+    f = h5py.File(img_save_path, 'w')
+    f.create_dataset('image', data=frame)
+    f.close()
+    # cv2.imwrite(img_save_path, frame)
     # Assert file has been written to disk. 
     if (not os.path.isfile(img_save_path)):
       raise Exception("ERROR: Image was not saved. This happens " +\
@@ -205,8 +210,8 @@ class Util(object):
     # Write file
     tree = ET.ElementTree(annotation)
     extension = Util.detect_file_extension(filename)
-    if (extension == None):
-      raise Exception("Image's extension not supported {}".format(filename))
+    # if (extension == None):
+    #   raise Exception("Image's extension not supported {}".format(filename))
     tree.write(output_directory)
     # Assert file has been written to disk.
     if (not os.path.isfile(output_directory)):
